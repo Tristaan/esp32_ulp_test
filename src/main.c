@@ -4,14 +4,10 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "soc/soc_ulp.h"
-#include "soc/rtc_cntl_reg.h"
-
-void main_task(void *pvParameter) {
-    while (1) {
-        printf("Hello world!\n");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-}
+#include "soc/rtc.h"
+#include "ulp_main.h"
+#include "esp32/ulp_common_defs.h"
+#include "ulp_fsm_common.h"
 
 extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
 extern const uint8_t ulp_main_bin_end[] asm("_binary_ulp_main_bin_end");
@@ -22,9 +18,11 @@ void start_ulp_program() {
 }
 
 void app_main() {
-    gpio_set_direction(GPIO_NUM_27, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(GPIO_NUM_27, GPIO_PULLUP_ONLY);
-    
+    esp_sleep_enable_ulp_wakeup();
+    start_ulp_program();
 
-    esp_light_sleep_start();
+    printf("Hello world!\n");
+    fflush(stdout);
+
+    esp_deep_sleep_start();
 }

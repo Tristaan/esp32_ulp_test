@@ -1,19 +1,46 @@
-#include "soc/rtc_cntl_reg.h"
-#include "soc/soc_ulp.h"
+#include "soc/soc_ulp.h"     // for WRITE_RTC_REG
+#include "soc/rtc_io_reg.h"  // for RTC_GPIO_*
+
+
+.global entry                // ulp start address used by main core program
+
+.set gpio_2, 12              // gpio pin 2 is rtc pin 12
 
 .text
 
-.global entry
 entry:
-_config:
-    WRITE_RTC_FIELD(RTC_CNTL_EXT_WAKEUP1_REG, RTC_CNTL_EXT_WAKEUP1_SEL, 0b10000000000000000)
-_wakeup:
-    READ_RTC_FIELD(RTC_CNTL_LOW_POWER_ST_REG, RTC_CNTL_RDY_FOR_WAKEUP)
-    and r0, r0, 1
-    jump _wakeup, eq
-    READ_RTC_FIELD(RTC_CNTL_EXT_WAKEUP1_STATUS_REG, RTC_CNTL_EXT_WAKEUP1_STATUS)
-    and r0, r0, 0b10000000000000000
-    jump _wakeup, eq
+  // might be needed for some pads, but surely not #2
+  // WRITE_RTC_REG(RTC_IO_TOUCH_PAD2_REG, RTC_IO_TOUCH_PAD2_TO_GPIO_S, 1, 1)
 
+  // use digital function, not rtc function
+  WRITE_RTC_REG(RTC_IO_TOUCH_PAD2_REG, RTC_IO_TOUCH_PAD2_MUX_SEL_S, 1, 1)
+
+  // gpio_2 shall be output, not input
+  WRITE_RTC_REG(RTC_GPIO_OUT_REG, RTC_GPIO_OUT_DATA_S + gpio_2, 1, 1)
+  move  r3, 10
+
+on:
+  WRITE_RTC_REG(RTC_GPIO_ENABLE_W1TS_REG, RTC_GPIO_ENABLE_W1TS_S + gpio_2, 1, 1)
+
+  move  r1, 200           // wait in ms
+  move  r2, off           // return address
+  jump  delay             // call subroutine
+
+off:
+  WRITE_RTC_REG(RTC_GPIO_ENABLE_W1TC_REG, RTC_GPIO_ENABLE_W1TC_S + gpio_2, 1, 1)
+
+  move  r1, 800           // wait in ms
+  move  r2, on            // return address
+  jump  delay             // call subroutine
+
+delay:
+  wait  8000              // wait 8000 clock ticks at 8MHz -> 1ms
+  sub   r1, r1, 1         // decrement ms count
+  jump  r2, eq            // if ms count is zero then return to caller
+  sub   r3, r3, 1         // subtract loop count
+  jump  exit, eq
+  jump  delay             // else continue to wait
+
+exit:
     wake
     halt
