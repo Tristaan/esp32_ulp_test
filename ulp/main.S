@@ -1,5 +1,6 @@
 #include "soc/soc_ulp.h"     // for WRITE_RTC_REG
 #include "soc/rtc_io_reg.h"  // for RTC_GPIO_*
+#include "soc/rtc_cntl_reg.h"
 
 
 .global entry                // ulp start address used by main core program
@@ -9,15 +10,13 @@
 .text
 
 entry:
-  // might be needed for some pads, but surely not #2
-  // WRITE_RTC_REG(RTC_IO_TOUCH_PAD2_REG, RTC_IO_TOUCH_PAD2_TO_GPIO_S, 1, 1)
 
   // use digital function, not rtc function
   WRITE_RTC_REG(RTC_IO_TOUCH_PAD2_REG, RTC_IO_TOUCH_PAD2_MUX_SEL_S, 1, 1)
 
   // gpio_2 shall be output, not input
   WRITE_RTC_REG(RTC_GPIO_OUT_REG, RTC_GPIO_OUT_DATA_S + gpio_2, 1, 1)
-  move  r3, 10
+  move  r3, 9999
 
 on:
   WRITE_RTC_REG(RTC_GPIO_ENABLE_W1TS_REG, RTC_GPIO_ENABLE_W1TS_S + gpio_2, 1, 1)
@@ -38,9 +37,12 @@ delay:
   sub   r1, r1, 1         // decrement ms count
   jump  r2, eq            // if ms count is zero then return to caller
   sub   r3, r3, 1         // subtract loop count
-  jump  exit, eq
+  jump  exit_0, eq
   jump  delay             // else continue to wait
 
-exit:
-    wake
-    halt
+exit_0:
+  // Disable timer wakeup
+  WRITE_RTC_REG(RTC_CNTL_STATE0_REG, RTC_CNTL_ULP_CP_SLP_TIMER_EN_S, 1, 0);
+
+  wake
+  halt

@@ -2,6 +2,12 @@
     "files.associations": {
         "rtc_cntl_periph.h": "c",
         "rtc_cntl_reg.h": "c",
-        "soc_ulp.h": "c"
-    }
+        "soc_ulp.h": "c",
+        "rtc.h": "c",
+        "rtc_io_reg.h": "c",
+        "ulp.h": "c",
+        "ulp_common.h": "c",
+        "ulp_common_defs.h": "c"
+    },
+    "cmake.configureOnOpen": false
 }
