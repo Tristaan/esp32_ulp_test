@@ -2,13 +2,11 @@
 #include "soc/rtc_io_reg.h"  // for RTC_GPIO_*
 #include "soc/rtc_cntl_reg.h"
 
-
-.global entry                // ulp start address used by main core program
-
 .set gpio_2, 12              // gpio pin 2 is rtc pin 12
 
 .text
 
+.global entry                // ulp start address used by main core program
 entry:
 
   // use digital function, not rtc function
@@ -43,6 +41,12 @@ delay:
 exit_0:
   // Disable timer wakeup
   WRITE_RTC_REG(RTC_CNTL_STATE0_REG, RTC_CNTL_ULP_CP_SLP_TIMER_EN_S, 1, 0);
+
+exit_1:
+  READ_RTC_FIELD(RTC_CNTL_LOW_POWER_ST_REG, RTC_CNTL_RDY_FOR_WAKEUP)
+
+	or r0, r0, r1
+	jump exit_1, eq
 
   wake
   halt
