@@ -28,8 +28,7 @@ void app_main() {
         esp_sleep_enable_ulp_wakeup();
         ESP_ERROR_CHECK(ulp_load_binary(0, ulp_main_bin_start, (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t)));
     }
-
-
+    
     // Initialize the WiFi connection
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 

@@ -45,7 +45,7 @@ exit_0:
 exit_1:
   READ_RTC_FIELD(RTC_CNTL_LOW_POWER_ST_REG, RTC_CNTL_RDY_FOR_WAKEUP)
 
-	or r0, r0, r1
+	or r0, r0, 1
 	jump exit_1, eq
 
   wake

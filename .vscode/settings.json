@@ -7,10 +7,15 @@
         "rtc_io_reg.h": "c",
         "ulp.h": "c",
         "ulp_common.h": "c",
-        "ulp_common_defs.h": "c"
+        "ulp_common_defs.h": "c",
+        "event_manager.h": "c"
     },
     "cmake.configureOnOpen": false,
     "idf.adapterTargetName": "esp32",
     "idf.flashType": "UART",
-    "idf.port": "/dev/cu.usbserial-0001"
+    "idf.port": "/dev/ttyUSB0",
+    "idf.openOcdConfigs": [
+        "interface/ftdi/olimex-jtag-tiny.cfg",
+        "target/esp32.cfg"
+    ]
 }

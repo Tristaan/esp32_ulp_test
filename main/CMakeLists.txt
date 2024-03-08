@@ -3,7 +3,7 @@
 
 FILE(GLOB_RECURSE app_sources *.*)
 
-idf_component_register(SRCS ${app_sources} INCLUDE_DIRS ../include REQUIRES ulp esp_wifi nvs_flash esp_netif)
+idf_component_register(SRCS ${app_sources} INCLUDE_DIRS ../include REQUIRES ulp esp_wifi nvs_flash esp_netif esp_common)
 
 #ULP
 set(ulp_app_name ulp_main)
